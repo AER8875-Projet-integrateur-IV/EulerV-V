@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Vscode
+.vscode/
+
+# fichiers controls
+*.ees2d
