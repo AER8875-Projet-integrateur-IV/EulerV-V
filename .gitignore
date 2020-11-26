@@ -133,3 +133,5 @@ dmypy.json
 
 # fichiers controls
 *.ees2d
+*.dat
+*.png
