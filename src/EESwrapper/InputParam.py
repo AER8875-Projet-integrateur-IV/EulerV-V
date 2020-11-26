@@ -6,8 +6,8 @@ from pathlib import Path
 MESH_FORMAT_SU2 = "su2"
 
 # Mesh types
-MESH_TYPE_UNSTRUCT = "unstructured"
-MESH_TYPE_STRUCT = "structured"
+MESH_TYPE_UNSTRUCT = "UNSTRUCTURED"
+MESH_TYPE_STRUCT = "STRUCTURED"
 
 # Speed options
 SPD_OPTION_MACH = "MACH"
@@ -17,6 +17,10 @@ SPD_OPTION_VELOCITY = "VELOCITY"
 SCHEME_ROE = "ROE"
 SCHEME_AVERAGE = "AVERAGE"
 SCHEME_AUSM = "AUSM"
+
+# time scheme
+SCHEME_TIME_EULER_EXPLICIT = "EXPLICIT_EULER"
+SCHEME_TIME_RK5 = "RK5"
 
 # output formats
 OUTPUT_FORMAT_TECPLOT = "Tecplot"
@@ -50,8 +54,10 @@ class InputParam():
 
     # solver control
     scheme: str = SCHEME_ROE
-    minimumResidual:float = 1e-8
-    maxIteration: int = 200
+    timeIntegration: str = SCHEME_TIME_EULER_EXPLICIT
+    cfl: float = 0.5
+    minimumResidual:float = 1e-5
+    maxIteration: int = 10000
     openMPThreads: int = 4
 
     # Post-processor control

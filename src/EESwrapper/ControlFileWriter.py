@@ -1,5 +1,5 @@
 from os import sep, write
-from InputParam import InputParam
+from EESwrapper.InputParam import InputParam
 from pathlib import Path
 from typing import Union
 import math
@@ -69,6 +69,12 @@ def ControlFileWriter(inputParam: InputParam, outPath: Union[str,Path]):
         file.write("# Discretization of the Convective Fluxes . Options : ROE | AUSM (not implement yet)\n")
         file.write("SCHEME = " + inputParam.scheme + "\n\n")
 
+        file.write("# Time integration . Options : EXPLICIT_EULER / RK5\n")
+        file.write("TIME_INTEGRATION = " + inputParam.timeIntegration + "\n\n")
+
+        file.write("# Courant_Friedrichs-Lewy Number (CFL)\n")
+        file.write("CFL = " + str(inputParam.cfl) + "\n\n")
+
         file.write("# Minimum residual to stop solver\n")
         file.write("MIN_RESIDUAL = " + str(inputParam.minimumResidual) + "\n\n")
 
@@ -81,8 +87,14 @@ def ControlFileWriter(inputParam: InputParam, outPath: Union[str,Path]):
         # Post-processing control
         file.write(CreateSeparator("POST-PROCESSING CONTROL"))
 
+        file.write("#Path to residual output file, from executable directory (without file extension)\n")
+        file.write("RESIDUAL_FILE = " + str(inputParam.residualPath) + "\n\n")
+
+        file.write("#Path to pressure output file, from executable directory (without file extension)\n")
+        file.write("PRESSURE_FILE = " + str(inputParam.pressurePath) + "\n\n")
+
         file.write("# Post processng file format . Options : TECPLOT | VTK\n")
-        file.write("OUTPUT_FORMAT = " + inputParam.outputFormat + "\n\n")
+        file.write("OUTPUT_FORMAT = " + str(inputParam.outputFormat) + "\n\n")
 
         file.write("# Path to file output, from executable directory\n")
         file.write("OUTPUT_FILE = " + str(inputParam.outputPath) + "\n\n")
