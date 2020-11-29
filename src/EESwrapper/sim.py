@@ -169,11 +169,11 @@ class sim():
         """Read CL from pressure data output file
         """        
         with self.paths.pressure.open("r") as file:
-            for line in file:
-                if line == 2:
+            for i, line in enumerate(file):
+                if i == 3:
                     substr = line.split()
+                    print(substr)
                     CL = float(substr[2])
                     CD = float(substr[6])
-                    return CL, CD
-        raise Exception("CL and CD could not be found")
+        return CL, CD
                 
