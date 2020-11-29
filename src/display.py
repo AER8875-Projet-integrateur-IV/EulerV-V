@@ -2,37 +2,57 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-def ObservedOrder(h:list,f:list)->float:
-    """create a plot for the order of convergence from the result of 3 meshs
+def Vassbergfig39(NC: list, Cl: list, savePath: str = "Vassbergfig39.png"):
+    """Recreate the plot from Vassberg and Jameson fig39 and overlay custom data points
 
     Args:
-        h (float): meshes sizes
-        f (list): result value. e.g. the lift coefficient
+        NC (list): mesh sizes to be overlayed
+        Cl (list): Corresponding Cl values
+    """
+    # Data taken from : Table 8  CFL3D-flux-splitting transonic data at M 0.8
+    # alpha = 1.25      no vortex-correction
+    NC_V         = np.array([256.         , 512.         , 1024.         , 2048          ])
+    Cl_V_125     = np.array([  0.359073197,   0.357580694,    0.355943711,    0.354593186])
+    Cl_V_star    = 0.348226045
 
-    Returns:
-        list: [description]
-    """    
-    h = np.array(h)
-    f = np.array(f)
+    p_V          = 0.278
 
-    x = np.log(h)
-    y = np.log(f)
-
-    x1, x0 = np.polyfit(x,y,1)
-
-
-
+    NC = np.array(NC)
+    Cl = np.array(Cl)
+    
+    # ------------------------ Plotting ---------------------------------
     plt.figure()
+    
+    # Vassberg points
+    x_V = np.log10(np.power(NC_V,-1))
+    y_V = np.log10(abs(Cl_V_125-Cl_V_star))
+    plt.scatter(x_V,y_V,label="Vassberg et Jameson")
 
-    plt.xlabel("ln(h)")
-    plt.ylabel("ln(CL)")
+    # Vassberg convergence line
+    x_O_V = np.array([min(x_V),-1])
+    y_O_V = x_O_V*p_V
 
-    plt.scatter(x,y)
-    plt.plot(x,x0+x*x1)
-    plt.show()
+    b = min(y_O_V)-min(y_V)
 
-    return x1
+    plt.plot(x_O_V,y_O_V-b,"--")
 
-def SRQ(h:list, f:list)->float:
-    p_hat = math.log((f[1]-f[0])/(f[2]-f[1]))/math.log(2)
-    return p_hat
+    # your data
+    x = np.log10(np.power(NC,-1))
+    y = np.log10(np.abs(Cl-Cl_V_star))
+    plt.scatter(x,y, label="Code PI4")
+
+
+    # 
+    plt.xlabel("Log(1/NC)")
+    plt.ylabel("Log( abs(Cl-Cl*) )")
+
+    plt.xlim([-4,-1])
+    plt.ylim([-5, 0])
+    
+    plt.grid(True, "major")
+    
+    plt.legend()
+    plt.savefig(savePath)
+
+if __name__ == "__main__":
+    Vassbergfig39([17., 33. ,65. ],[0.135716, 0.192864, 0.256218])
