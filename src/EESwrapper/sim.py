@@ -78,7 +78,39 @@ class sim():
                               Path(inputParam.outputPath),
                               Path("MMSoutput.dat"))
         self.time = 0 
-        
+    
+    def updatePaths(self,
+                    controlPath : Union[str, Path]=None, logPath   : Union[str, Path]=None, residualPath: Union[str, Path]=None ,
+                    pressurePath: Union[str, Path]=None, outputPath: Union[str, Path]=None, MMSPath     : Union[str, Path]=None ):
+        """update paths for some or all simulation files
+
+        Args:
+            controlPath (Union[str, Path], optional): path to the initial control file. Defaults to None.
+            logPath (Union[str, Path], optional): path to the log output. Defaults to None.
+            residualPath (Union[str, Path], optional): path to the residuals output. Defaults to None.
+            pressurePath (Union[str, Path], optional): path to the pressure output. Defaults to None.
+            outputPath (Union[str, Path], optional): path to the visualisation data output. Defaults to None.
+            MMSPath (Union[str, Path], optional): path to the Method of Manufactured Solutions exact solution. Defaults to None.
+        """        
+        if controlPath:
+            controlPath = Path(controlPath)
+            self.paths.control = controlPath
+        if logPath:
+            logPath = Path(logPath)
+            self.paths.log = logPath
+        if residualPath:
+            residualPath = Path(residualPath)
+            self.paths.residual = residualPath
+        if pressurePath:
+            pressurePath = Path(pressurePath)
+            self.paths.pressure = pressurePath
+        if outputPath:
+            outputPath = Path(outputPath)
+            self.paths.output = outputPath
+        if MMSPath:
+            MMSPath = Path(MMSPath)
+            self.paths.mms = MMSPath
+
     def GetResiduals(self)->np.ndarray:
         array = np.loadtxt(str(self.paths.residual),skiprows=6)
         # array = np.loadtext(str(self.residualPath),skiprows=5)
