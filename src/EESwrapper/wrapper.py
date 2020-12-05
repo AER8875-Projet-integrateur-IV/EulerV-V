@@ -30,9 +30,10 @@ class wrapper:
 
         # write control file
         ControlFileWriter(inputParam,controlPath)
+        logPath = inputParam.logPath
 
         beg = time.perf_counter()
-        self._Send2Terminal(controlPath, additionalArgs)
+        self._Send2Terminal(controlPath, logPath, additionalArgs)
         end = time.perf_counter()
 
         # Return object containing sim info
@@ -40,15 +41,17 @@ class wrapper:
         sim.time = end-beg
         return sim
 
-    def _Send2Terminal(self,controlPath: Union[str,Path],additionalArgs: Optional[list] = None) -> None:
+    def _Send2Terminal(self,controlPath: Union[str,Path], logPath: Union[str,Path], additionalArgs: Optional[list] = None) -> None:
         """Run a simulation with optional additional arguments
 
         Args:
             controlPath (Union[str,Path]): Path to the control file
+            logPath (Union[str,Path]): Path the log file where the simulation log will be written
             additionalArgs (Optional[list], optional): List of strings to be supplied as additional arguments for the simulation. Defaults to None.
         """        
         command = [str(self.executable), str(controlPath)]
         if additionalArgs != None:
             command.extend(additionalArgs)
-        subprocess.run(command)
+        with open(logPath,"w") as file:
+            subprocess.run(command,stdout=file)
 

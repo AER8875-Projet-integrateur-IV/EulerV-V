@@ -14,3 +14,4 @@ MESH_EULER_1508x1508 = Path(r"mesh/NACA0012_Omesh_1508x1508.su2")
 # Standard executable paths
 EXEC_EULER2D_A = Path(r"bin/Euler2D_A")
 EXEC_EULER2D_A_MMS = Path(r"bin/Euler2D_A_MMS")
+EXEC_EES2D_APP = Path(r"bin/EES2D_App")

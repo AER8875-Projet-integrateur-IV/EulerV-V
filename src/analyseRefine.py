@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def SolveCL():
+def SolveCL(filepath):
     """Run the simulation on multiples meshes and write resulting CL and CD to a file
 
     Returns:
@@ -19,45 +19,67 @@ def SolveCL():
     """    
     # Wrapper initialisation
     EES2D = wrapper.wrapper(constants.EXEC_EULER2D_A)
-    meshes = [constants.MESH_EULER_17x17,
-              constants.MESH_EULER_17x17,
-              constants.MESH_EULER_33x33,
-              constants.MESH_EULER_65x65,
-              constants.MESH_EULER_129x129,
-              constants.MESH_EULER_256x256,
-              constants.MESH_EULER_513x513]
-    size = np.array([9.,17.,33.,65.,129.,256.,513.])
+    # meshes = [constants.MESH_EULER_9x9,
+    #           constants.MESH_EULER_17x17,
+    #           constants.MESH_EULER_33x33,
+    #           constants.MESH_EULER_65x65,
+    #           constants.MESH_EULER_129x129,
+    #           constants.MESH_EULER_256x256,
+    #           constants.MESH_EULER_513x513]
 
+    # size = np.array([8.,16.,32.,64.,128.,256.,512.])
+
+    meshes = [constants.MESH_EULER_513x513]
+    size = [512.]
+    
     CL_ar = []
     CD_ar = []
+    time_ar = []
+    lastRes_ar = []
 
+    with open(filepath, "a") as file:
+        file.write("{:<20}".format("size")          + 
+                   "{:<20}".format("CL")            + 
+                   "{:<20}".format("CD")            + 
+                   "{:<20}".format("time (s)")      + 
+                   "{:<20}".format("Res. RMS fin")  +
+                   "\n")
+    mach = 0.5
     for i, mesh in enumerate(meshes):
-        input = InputParam.InputParam(meshFile=mesh,aoa=1.25,mach=0.5,maxIteration=int(1e6), minimumResidual=1e-6)
+        input = InputParam.InputParam(meshFile=mesh,aoa=1.25,mach=mach,maxIteration=int(1e5), minimumResidual=1e-15,cfl=0.5)
 
         sim = EES2D.RunSim(input,additionalArgs=["-vv"])
 
-        outputfolder = Path(".")/"analyseRefSub{:.0f}".format(size[i])
+        outputfolder = Path(".")/"analyseRef05_{:.0f}".format(size[i])
         sim.move2folder(outputfolder)
         
         CL, CD = sim.getCoefficients()
 
-        print(CL, CD)
+        residuals = sim.GetResiduals()
+        lastRes_ar.append(np.max(residuals[-1,:]))
 
         CL_ar.append(CL)
         CD_ar.append(CD)
+        time_ar.append(sim.time)
+
+        result_str = "{:<15.0f}     {:<15.6f}     {:<15.6f}     {:<15.6f}     {:<15.6e}".format(size[i],CL_ar[i],CD_ar[i],time_ar[i],lastRes_ar[i]) + "\n"
+        with open(filepath, "a") as file:
+            file.write(result_str)
 
     # print results
     result_str = "------------- Results -----------------\n"
-    result_str += "{:<15}".format("size") + "{:<15}".format("CL") + "{:<15}".format("CD") +"\n"
+    result_str += ("{:<15}".format("size")          + 
+                   "{:<15}".format("CL")            + 
+                   "{:<15}".format("CD")            + 
+                   "{:<15}".format("time (s)")      + 
+                   "{:<15}".format("Res. RMS fin")  +
+                   "\n")
     for i in range(len(meshes)):
-        result_str += "{:<10.0f}     {:<10.6f}     {:<10.6f}".format(size[i],CL_ar[i],CD_ar[i]) + "\n"
+        result_str += "{:<10.0f}     {:<10.6f}     {:<10.6f}     {:<10.6f}     {:<10.6e}".format(size[i],CL_ar[i],CD_ar[i],time_ar[i],lastRes_ar[i]) + "\n"
     print(result_str)
 
-    path = "analyseRefSub.txt"
-    with open(path, "w") as file:
-        file.write(result_str)
 
-    return path
+
 
 def Plot(path):
     # ReadData
@@ -109,5 +131,5 @@ def Plot(path):
         plt.close()
 
 if __name__ == "__main__":
-    # SolveCL()
-    Plot(r"/mnt/linuxHDD/PI4/EulerV-V/analyseRefSub/analyseRefSub.txt")
+    SolveCL("analyseMach05.dat")
+    # Plot(r"/mnt/linuxHDD/PI4/EulerV-V/analyseRefSub/analyseRefSub.txt")

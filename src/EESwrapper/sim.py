@@ -121,32 +121,6 @@ class sim():
         """        
         self.paths.delete()
 
-    def plotResiduals(self, savePath: Optional[Union[str, Path]]=None):
-        """PLot the simulation residuals as a function of the iteration number
-
-        Args:
-            savePath (Optional[Union[str, Path]], optional): Save path for the resulting fig, the figure will be 
-            displayed if no argument is given. Defaults to None.
-        """        
-        residuals = self.GetResiduals()
-        title = "mesh: %s  AOA: %f deg"%(Path(self.inputParam.meshFile).stem, self.inputParam.aoa)
-
-        plt.plot([i for i in range(residuals.shape[0])],residuals[:,0])
-        plt.plot([i for i in range(residuals.shape[0])],residuals[:,1])
-        plt.plot([i for i in range(residuals.shape[0])],residuals[:,2])
-        plt.plot([i for i in range(residuals.shape[0])],residuals[:,3])
-        plt.title(title)
-        plt.xlabel("Iterations")
-        plt.ylabel("residuals")
-        plt.legend(["rho_V", "rho_u_V", "rho_v_V","rho_H_V"])
-        plt.yscale("log")
-        plt.show()
-        if savePath != None:
-            plt.savefig(savePath)
-        else:
-            plt.show()
-        plt.close()
-
     def move2folder(self, path: Union[str, Path]):
         """Move all output files relating to this simulation to a new target directory, if a directory
         with the given path allready exists, a new directory will be created with the word "copy" appended
@@ -200,12 +174,27 @@ class sim():
     def getCoefficients(self)->tuple:
         """Read CL from pressure data output file
         """        
-        with self.paths.pressure.open("r") as file:
-            for i, line in enumerate(file):
-                if i == 3:
-                    substr = line.split()
-                    print(substr)
-                    CL = float(substr[2])
-                    CD = float(substr[6])
+        try:
+            # Code equipe A
+            with self.paths.pressure.open("r") as file:
+                for i, line in enumerate(file):
+                    if i == 3:
+                        substr = line.split()
+                        CL = float(substr[2])
+                        CD = float(substr[6])
+        except:
+            # Code eqquipe D
+            log = self.paths.log.open("r").read()
+            #Cl regex
+            re_float = r"-?\d+\.\d+(?=\s)" 
+            re_cl = r"(?<=Cl\s)"
+            re_cd = r"(?<=Cd : )"
+
+            CL_match = re.search(re_cl+re_float,log)
+            CD_match = re.search(re_cd+re_float,log)
+
+            CL = float(CL_match.group())
+            CD = float(CD_match.group())
+
         return CL, CD
                 

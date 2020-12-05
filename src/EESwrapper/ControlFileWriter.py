@@ -82,7 +82,7 @@ def ControlFileWriter(inputParam: InputParam, outPath: Union[str,Path]):
         file.write("MAX_ITER = " + str(inputParam.maxIteration) + "\n\n")
 
         file.write("# Number of opemmp threads used by the solver\n")
-        file.write("OPENMP_THREAD_NUM = " + str(inputParam.openMPThreads) + "\n\n")
+        file.write("OPEMMP_THREAD_NUM = " + str(inputParam.openMPThreads) + "\n\n")
 
         # Post-processing control
         file.write(CreateSeparator("POST-PROCESSING CONTROL"))
