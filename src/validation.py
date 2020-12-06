@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-def SolveCL(filepath):
+def SolveCL(filepath,mesh,size):
     """Run the simulation on multiples AOA and write resulting CL and CD to a file
 
     Returns:
@@ -16,18 +16,6 @@ def SolveCL(filepath):
     """    
     # Wrapper initialisation
     EES2D = wrapper.wrapper(constants.EXEC_EES2D_APP)
-    # meshes = [constants.MESH_EULER_9x9,
-    #           constants.MESH_EULER_17x17,
-    #           constants.MESH_EULER_33x33,
-    #           constants.MESH_EULER_65x65,
-    #           constants.MESH_EULER_129x129,
-    #           constants.MESH_EULER_256x256,
-    #           constants.MESH_EULER_513x513]
-
-    # size = np.array([8.,16.,32.,64.,128.,256.,512.])
-
-    mesh = constants.MESH_EULER_256x256
-    size = 256
 
     # mach number from Reynolds definition
     Re = 1e7
@@ -57,9 +45,10 @@ def SolveCL(filepath):
                    "{:<20}".format("time (s)")      + 
                    "{:<20}".format("Res. RMS fin")  +
                    "\n")
-    alpha_ar =[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+
+    alpha_ar =[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     for i, alpha in enumerate(alpha_ar):
-        input = InputParam.InputParam(meshFile=mesh,aoa=alpha,maxIteration=int(1e5), minimumResidual=1e-10,cfl=6,timeIntegration=InputParam.SCHEME_TIME_RK5,
+        input = InputParam.InputParam(meshFile=mesh,aoa=alpha,maxIteration=int(1e5), minimumResidual=1e-15,cfl=6,timeIntegration=InputParam.SCHEME_TIME_RK5,
                                       viscosity=mu,rho=rho,gamma=gamma,gasConstant=R,temp=T,mach=mach,logPath="log%i.txt"%size,residualPath="residuals%i.dat"%size)
 
         sim = EES2D.RunSim(input,additionalArgs=[])
@@ -82,7 +71,14 @@ def SolveCL(filepath):
 
 def getGCI(f1,f2,f3):
     r=2
-    p_hat = math.log((f3-f2)/(f2-f1))/math.log(r)
+    try:
+        p_hat = math.log((f3-f2)/(f2-f1))/math.log(r)
+    # x=np.log(np.power(np.array([128.,256.,512.]),-1))
+    # star = 
+    # y=np.log(np.array([f3,f2,f1]))
+    # p_hat = np.polyfit(x,y,1)[0]
+    except:
+        return 0, -1
     pf =1
     error = (p_hat-pf)/pf
     if error <=0.1:
@@ -97,40 +93,47 @@ def getGCI(f1,f2,f3):
     return GCI, p_hat
 
 def solveComputationalError():
+    alpha_ar = np.linspace(0,11,12)
+
     # extract data
     data_128 = np.loadtxt("validation/NC128/testValidation.dat", skiprows=1)
     data_256 = np.loadtxt("validation/NC256/testValidation.dat", skiprows=1)
     data_512 = np.loadtxt("validation/NC512/testValidation.dat", skiprows=1)
 
     # solve GCI
-    alpha_ar = np.linspace(0,15,16)
-    GCI = np.zeros(len(alpha_ar))
-    p_hat = np.zeros(len(alpha_ar))
+    GCI = np.zeros((2,len(alpha_ar)))
+    p_hat = np.zeros((2,len(alpha_ar)))
     for alpha in range(len(alpha_ar)):
-        f3_ar = data_512[alpha,1:3]
+        f1_ar = data_512[alpha,1:3]
         f2_ar = data_256[alpha,1:3]
-        f1_ar = data_128[alpha,1:3]
+        f3_ar = data_128[alpha,1:3]
 
-        for coef in range(1,2,1):
+        for coef in range(2):
             f1 = f1_ar[coef]
             f2 = f2_ar[coef]
             f3 = f3_ar[coef]
-            GCI[alpha], p_hat[alpha] = getGCI(f1,f2,f3)
+            GCI[coef,alpha], p_hat[coef,alpha] = getGCI(f1,f2,f3)
 
     # write to file
     with open("modelError.dat","w") as file:
-        file.write("{:<20}".format("alpha")         + 
-                   "{:<20}".format("GCI")           + 
-                   "{:<20}".format("p_hat")         + 
+        file.write("{:<20}".format("alpha")            + 
+                   "{:<20}".format("GCI Cl")           + 
+                   "{:<20}".format("p_hat Cl")         + 
+                   "{:<20}".format("GCI Cd")           + 
+                   "{:<20}".format("p_hat Cd")         + 
                    "\n")
         for i, alpha in enumerate(alpha_ar):
             file.write("{:<15.9f}     ".format(alpha)         + 
-                       "{:<15.9f}     ".format(GCI[i])        + 
-                       "{:<15.9f}     ".format(p_hat[i])      + 
+                       "{:<15.9f}     ".format(GCI[0,i])        + 
+                       "{:<15.9f}     ".format(p_hat[0,i])      + 
+                       "{:<15.9f}     ".format(GCI[1,i])        + 
+                       "{:<15.9f}     ".format(p_hat[1,i])      + 
                        "\n")
 
 def PlotValidation():
     pass
 
 if __name__=="__main__":
-    SolveCL("testValidation256.dat")
+    # solveComputationalError()
+    SolveCL("testValidation128.dat",constants.MESH_EULER_129x129,128)
+    SolveCL("testValidation128.dat",constants.MESH_EULER_256x256,256)
