@@ -135,5 +135,5 @@ def PlotValidation():
 
 if __name__=="__main__":
     # solveComputationalError()
-    SolveCL("testValidation128.dat",constants.MESH_EULER_129x129,128)
-    SolveCL("testValidation128.dat",constants.MESH_EULER_256x256,256)
+    SolveCL("ValidationResults128.dat",constants.MESH_EULER_129x129,128)
+    SolveCL("ValidationResults256.dat",constants.MESH_EULER_256x256,256)
