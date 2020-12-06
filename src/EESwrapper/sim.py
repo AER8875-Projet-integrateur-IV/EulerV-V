@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 import re
-import tecplot.data
+# import tecplot.data
 from collections import namedtuple
 import copy
 
@@ -130,46 +130,46 @@ class sim():
         """        
         self.paths.move2folder(path)
 
-    def getW(self):
-        """Extract volume, density, velocity and pressure data from the solution tecplot data file
+    # def getW(self):
+    #     """Extract volume, density, velocity and pressure data from the solution tecplot data file
 
-        Returns:
-            namedtuple: tecplotVar named tuple, containing the following attributes: volume, rho, u, v, pressure
-        """      
+    #     Returns:
+    #         namedtuple: tecplotVar named tuple, containing the following attributes: volume, rho, u, v, pressure
+    #     """      
  
-        data = tecplot.data.load_tecplot(str(self.paths.output),read_data_option=tecplot.constant.ReadDataOption.Replace)
+    #     data = tecplot.data.load_tecplot(str(self.paths.output),read_data_option=tecplot.constant.ReadDataOption.Replace)
 
-        tecplotVar = namedtuple("tecplotVar", "volume rho u v pressure")
+    #     tecplotVar = namedtuple("tecplotVar", "volume rho u v pressure")
 
-        vol = data.variable('volume'  ).values(0).as_numpy_array(copy=True)
-        rho = data.variable('rho'     ).values(0).as_numpy_array(copy=True)
-        u   = data.variable('u'       ).values(0).as_numpy_array(copy=True)
-        v   = data.variable('v'       ).values(0).as_numpy_array(copy=True)
-        p   = data.variable('pressure').values(0).as_numpy_array(copy=True)
+    #     vol = data.variable('volume'  ).values(0).as_numpy_array(copy=True)
+    #     rho = data.variable('rho'     ).values(0).as_numpy_array(copy=True)
+    #     u   = data.variable('u'       ).values(0).as_numpy_array(copy=True)
+    #     v   = data.variable('v'       ).values(0).as_numpy_array(copy=True)
+    #     p   = data.variable('pressure').values(0).as_numpy_array(copy=True)
 
-        vars = tecplotVar(vol, rho, u, v, p)
+    #     vars = tecplotVar(vol, rho, u, v, p)
 
-        return vars
+    #     return vars
 
-    def getMMS(self):
-        """Extract volume, density, velocity and pressure data from a tecplot data file
+    # def getMMS(self):
+    #     """Extract volume, density, velocity and pressure data from a tecplot data file
 
-        Returns:
-            namedtuple: tecplotVar named tuple, containing the following attributes: rho, u, v, pressure
-        """        
+    #     Returns:
+    #         namedtuple: tecplotVar named tuple, containing the following attributes: rho, u, v, pressure
+    #     """        
 
-        dataMMS = tecplot.data.load_tecplot(str(self.paths.mms),read_data_option=tecplot.constant.ReadDataOption.Replace)
+    #     dataMMS = tecplot.data.load_tecplot(str(self.paths.mms),read_data_option=tecplot.constant.ReadDataOption.Replace)
 
-        tecplotVarMMS = namedtuple("tecplotVar", "rho u v pressure")
+    #     tecplotVarMMS = namedtuple("tecplotVar", "rho u v pressure")
 
-        rho = dataMMS.variable('rho'     ).values(0).as_numpy_array(copy=True)
-        u   = dataMMS.variable('u'       ).values(0).as_numpy_array(copy=True)
-        v   = dataMMS.variable('v'       ).values(0).as_numpy_array(copy=True)
-        p   = dataMMS.variable('pressure').values(0).as_numpy_array(copy=True)
+    #     rho = dataMMS.variable('rho'     ).values(0).as_numpy_array(copy=True)
+    #     u   = dataMMS.variable('u'       ).values(0).as_numpy_array(copy=True)
+    #     v   = dataMMS.variable('v'       ).values(0).as_numpy_array(copy=True)
+    #     p   = dataMMS.variable('pressure').values(0).as_numpy_array(copy=True)
 
-        vars = tecplotVarMMS(rho, u, v, p)
+    #     vars = tecplotVarMMS(rho, u, v, p)
 
-        return vars
+    #     return vars
 
     def getCoefficients(self)->tuple:
         """Read CL from pressure data output file
